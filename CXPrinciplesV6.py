@@ -10,9 +10,17 @@ def load_checklist():
     return primary, secondary
 
 def log_assessment(name, email, project, responses, score):
-    """Logs assessment responses to a CSV file."""
+    """Logs assessment responses to a CSV file without overwriting existing data."""
     log_file = "assessment_log.csv"
+    log_header = ["Timestamp", "Name", "Email", "Project"] + list(responses.keys()) + ["Score"]
     log_data = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), name, email, project] + list(responses.values()) + [score]
+    
+    try:
+        with open(log_file, mode='x', newline='') as file:  # Create file if it doesn't exist
+            writer = csv.writer(file)
+            writer.writerow(log_header)
+    except FileExistsError:
+        pass
     
     with open(log_file, mode='a', newline='') as file:
         writer = csv.writer(file)
@@ -92,14 +100,23 @@ def main():
             suggest_secondary_checks(primary, secondary, st.session_state.responses)
             provide_feedback(name, email, project, primary, st.session_state.responses)
     
-    if st.button("View Assessment Log"):
+    st.markdown("---")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.link_button("View Assessment Log"):
+            try:
+                log_df = pd.read_csv("assessment_log.csv")
+                st.subheader("Assessment Submissions Log")
+                st.dataframe(log_df)
+            except FileNotFoundError:
+                st.error("No log file found. Submit an assessment first.")
+    
+    with col2:
         try:
             log_df = pd.read_csv("assessment_log.csv")
-            st.subheader("Assessment Submissions Log")
-            st.dataframe(log_df)
-            st.download_button("Download Log File", log_df.to_csv(index=False), "assessment_log.csv", "text/csv")
+            st.markdown(f"[Download Log File](data:file/csv;base64,{log_df.to_csv(index=False).encode().decode()})", unsafe_allow_html=True)
         except FileNotFoundError:
-            st.error("No log file found. Submit an assessment first.")
+            pass
 
 if __name__ == "__main__":
     main()
