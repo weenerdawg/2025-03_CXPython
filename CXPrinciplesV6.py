@@ -31,7 +31,7 @@ def ask_primary_questions(primary):
     responses = {}
     st.header("CX Self-Assessment")
     
-    options = {"No": 1, "Partially": 2, "Yes": 3}
+    options = {"No (1)": 1, "Partially (2)": 2, "Yes (3)": 3}
     
     for index, row in primary.iterrows():
         if pd.isna(row['Checklist Question']) or str(row['Checklist Question']).strip() == "":
@@ -120,3 +120,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
