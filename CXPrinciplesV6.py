@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import csv
 from datetime import datetime
+import base64
 
 def load_checklist():
     """Loads primary and secondary CX checklist items."""
@@ -79,6 +80,12 @@ def provide_feedback(name, email, project, primary, responses):
     
     log_assessment(name, email, project, responses, overall_percentage)
 
+def get_download_link(df):
+    """Generates a download link for the assessment log CSV file."""
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # Convert to base64
+    return f'<a href="data:file/csv;base64,{b64}" download="assessment_log.csv">Download Log File</a>'
+
 def main():
     st.title("CX Checklist Self-Assessment")
     primary, secondary = load_checklist()
@@ -101,20 +108,13 @@ def main():
             provide_feedback(name, email, project, primary, st.session_state.responses)
     
     st.markdown("---")
-    log_file_exists = False
     try:
         log_df = pd.read_csv("assessment_log.csv")
-        log_file_exists = True
+        st.markdown("### Assessment Log")
+        st.dataframe(log_df)
+        st.markdown(get_download_link(log_df), unsafe_allow_html=True)
     except FileNotFoundError:
-        pass
-    
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    if log_file_exists:
-        st.markdown("[View Assessment Log](#)", unsafe_allow_html=True)
-        csv_data = log_df.to_csv(index=False)
-        st.markdown(f'<a href="data:file/csv;base64,{csv_data.encode().decode()}" download="assessment_log.csv">Download Log File</a>', unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.warning("No assessment log found yet.")
 
 if __name__ == "__main__":
     main()
-
