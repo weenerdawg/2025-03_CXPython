@@ -25,7 +25,7 @@ def suggest_secondary_checks(primary, secondary, responses):
     """Suggests secondary checklist items based on weak areas."""
     st.header("Suggested Additional Checks")
     for primary_id, score in responses.items():
-        if score < 2:
+        if score < 3:
             related_checks = secondary[secondary['Primary Link'] == primary_id]
             st.subheader(f"For '{primary[primary['ID'] == primary_id]['Checklist Question'].values[0]}'")
             for _, row in related_checks.iterrows():
