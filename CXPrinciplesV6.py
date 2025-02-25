@@ -31,7 +31,7 @@ def ask_primary_questions(primary):
     responses = {}
     st.header("CX Self-Assessment")
     
-    options = {"No (1)": 1, "Partially (2)": 2, "Yes (3)": 3}
+    options = {"No (A)": 1, "Partially (B)": 2, "Yes (C)": 3}
     
     for index, row in primary.iterrows():
         if pd.isna(row['Checklist Question']) or str(row['Checklist Question']).strip() == "":
@@ -101,22 +101,19 @@ def main():
             provide_feedback(name, email, project, primary, st.session_state.responses)
     
     st.markdown("---")
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        if st.link_button("View Assessment Log"):
-            try:
-                log_df = pd.read_csv("assessment_log.csv")
-                st.subheader("Assessment Submissions Log")
-                st.dataframe(log_df)
-            except FileNotFoundError:
-                st.error("No log file found. Submit an assessment first.")
+    log_file_exists = False
+    try:
+        log_df = pd.read_csv("assessment_log.csv")
+        log_file_exists = True
+    except FileNotFoundError:
+        pass
     
-    with col2:
-        try:
-            log_df = pd.read_csv("assessment_log.csv")
-            st.markdown(f"[Download Log File](data:file/csv;base64,{log_df.to_csv(index=False).encode().decode()})", unsafe_allow_html=True)
-        except FileNotFoundError:
-            pass
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    if log_file_exists:
+        st.markdown("[View Assessment Log](#)", unsafe_allow_html=True)
+        csv_data = log_df.to_csv(index=False)
+        st.markdown(f'<a href="data:file/csv;base64,{csv_data.encode().decode()}" download="assessment_log.csv">Download Log File</a>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
