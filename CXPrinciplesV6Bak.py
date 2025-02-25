@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import csv
-from datetime import datetime
 
 def load_checklist():
     """Loads primary and secondary CX checklist items."""
@@ -9,21 +7,12 @@ def load_checklist():
     secondary = pd.read_csv('/mount/src/2025-03_cxpython/CX_Principles_Data_Cleaned.csv', delimiter=';')
     return primary, secondary
 
-def log_assessment(name, email, project, responses, score):
-    """Logs assessment responses to a CSV file."""
-    log_file = "assessment_log.csv"
-    log_data = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), name, email, project] + list(responses.values()) + [score]
-    
-    with open(log_file, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(log_data)
-
 def ask_primary_questions(primary):
     """Guides the user through the 8 primary CX questions and collects responses."""
     responses = {}
     st.header("CX Self-Assessment")
     
-    options = {"No (1)": 1, "Partially (2)": 2, "Yes (3)": 3}
+    options = {"No": 1, "Partially": 2, "Yes": 3}
     
     for index, row in primary.iterrows():
         if pd.isna(row['Checklist Question']) or str(row['Checklist Question']).strip() == "":
@@ -44,7 +33,7 @@ def suggest_secondary_checks(primary, secondary, responses):
             for _, row in related_checks.iterrows():
                 st.write(f"- {row['Secondary Checklist Question']}")
 
-def provide_feedback(name, email, project, primary, responses):
+def provide_feedback(primary, responses):
     """Provides structured feedback based on weighted scores."""
     st.header("CX Assessment Summary")
     total_score = 0
@@ -68,16 +57,10 @@ def provide_feedback(name, email, project, primary, responses):
         st.warning("⚠️ Some key areas need improvement.")
     else:
         st.error("🚨 Significant CX gaps exist. Address high-priority items first.")
-    
-    log_assessment(name, email, project, responses, overall_percentage)
 
 def main():
     st.title("CX Checklist Self-Assessment")
     primary, secondary = load_checklist()
-    
-    name = st.text_input("Your Name")
-    email = st.text_input("Email Address")
-    project = st.text_input("Project Name")
     
     if 'responses' not in st.session_state:
         st.session_state.responses = {}
@@ -85,21 +68,9 @@ def main():
     responses = ask_primary_questions(primary)
     
     if st.button("Submit Assessment"):
-        if not name or not email or not project:
-            st.warning("Please fill in all the required fields before submitting.")
-        else:
-            st.session_state.responses = responses
-            suggest_secondary_checks(primary, secondary, st.session_state.responses)
-            provide_feedback(name, email, project, primary, st.session_state.responses)
-    
-    if st.button("View Assessment Log"):
-        try:
-            log_df = pd.read_csv("assessment_log.csv")
-            st.subheader("Assessment Submissions Log")
-            st.dataframe(log_df)
-            st.download_button("Download Log File", log_df.to_csv(index=False), "assessment_log.csv", "text/csv")
-        except FileNotFoundError:
-            st.error("No log file found. Submit an assessment first.")
+        st.session_state.responses = responses
+        suggest_secondary_checks(primary, secondary, st.session_state.responses)
+        provide_feedback(primary, st.session_state.responses)
 
 if __name__ == "__main__":
     main()
