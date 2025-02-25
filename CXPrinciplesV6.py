@@ -109,7 +109,7 @@ def main():
     
     st.markdown("---")
     try:
-    ##    log_df = pd.read_csv("assessment_log.csv")
+        log_df = pd.read_csv("assessment_log.csv")
     ##    st.markdown("### Assessment Log")
     ##    st.dataframe(log_df)
         st.markdown(get_download_link(log_df), unsafe_allow_html=True)
