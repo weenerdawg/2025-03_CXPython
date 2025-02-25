@@ -12,12 +12,14 @@ def ask_primary_questions(primary):
     responses = {}
     st.header("CX Self-Assessment")
     
+    options = {"No (1)": 1, "Partially (2)": 2, "Yes (3)": 3}
+    
     for index, row in primary.iterrows():
         if pd.isna(row['Checklist Question']) or str(row['Checklist Question']).strip() == "":
             continue
         
-        score = st.radio(f"{row['Checklist Question']} (1-3):", [1, 2, 3], key=f"q_{index}")
-        responses[row['ID']] = score
+        score = st.radio(f"{row['Checklist Question']}", list(options.keys()), key=f"q_{index}")
+        responses[row['ID']] = options[score]
     
     return responses
 
