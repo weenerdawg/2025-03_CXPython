@@ -3,8 +3,8 @@ import pandas as pd
 
 def load_checklist():
     """Loads primary and secondary CX checklist items."""
-    primary = pd.read_csv('/Users/wernerpuchert/Desktop/CX_Principles_Data_Cleaned.csv', delimiter=';')
-    secondary = pd.read_csv('/Users/wernerpuchert/Desktop/CX_Principles_Data_Cleaned.csv', delimiter=';')
+    primary = pd.read_csv('/mount/src/2025-03_cxpython/CX_Principles_Data_Cleaned.csv', delimiter=';')
+    secondary = pd.read_csv('/mount/src/2025-03_cxpython/CX_Principles_Data_Cleaned.csv', delimiter=';')
     return primary, secondary
 
 def ask_primary_questions(primary):
