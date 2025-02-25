@@ -107,14 +107,14 @@ def main():
             suggest_secondary_checks(primary, secondary, st.session_state.responses)
             provide_feedback(name, email, project, primary, st.session_state.responses)
     
-    ##st.markdown("---")
-    ##try:
+    st.markdown("---")
+    try:
     ##    log_df = pd.read_csv("assessment_log.csv")
     ##    st.markdown("### Assessment Log")
     ##    st.dataframe(log_df)
-    ##    st.markdown(get_download_link(log_df), unsafe_allow_html=True)
-    ##except FileNotFoundError:
-    ##    st.warning("No assessment log found yet.")
+        st.markdown(get_download_link(log_df), unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.warning("No assessment log found yet.")
 
 if __name__ == "__main__":
     main()
